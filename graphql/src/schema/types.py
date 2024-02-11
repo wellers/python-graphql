@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import strawberry
-from .db import db
+from .db import connect
 from .scalars import PyObjectId
 
 @strawberry.type
@@ -49,13 +49,16 @@ class ContactsInsertInput:
 @strawberry.type
 class ContactsQuery:
 	@strawberry.field(name = "contacts_find")
-	def contacts_find(filter: ContactsFindFilter) -> ContactsFindResult:
+	async def contacts_find(filter: ContactsFindFilter) -> ContactsFindResult:
 		if len(filter.search_term) > 0:
 			filter = { "$or": [{ "forename": { "$regex": filter.search_term, "$options": "i" } }, { "surname": { "$regex": filter.search_term, "$options": "i" } }] }
 		else:
 			filter = {}
 
-		results = list(db.contacts.find(filter))
+		db = connect()
+
+		stuff = db.contacts.find(filter)		
+		results = await stuff.to_list(length=None)
 
 		docs = [Contact.to_schema(result) for result in results]
 
@@ -68,10 +71,12 @@ class ContactsQuery:
 @strawberry.type
 class ContactsMutation:
 	@strawberry.field(name = "contacts_insert")
-	def contacts_insert(input: ContactsInsertInput) -> ContactsInsertResult:
+	async def contacts_insert(input: ContactsInsertInput) -> ContactsInsertResult:
 		contacts = [contact.__dict__ for contact in input.contacts]
 		
-		inserted = db.contacts.insert_many(contacts)
+		db = connect()
+
+		inserted = await db.contacts.insert_many(contacts)
 
 		return ContactsInsertResult(
 			success=True, 

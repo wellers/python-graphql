@@ -1,5 +1,6 @@
 from os import getenv
-import pymongo
+import motor.motor_asyncio as motor
 
-myclient = pymongo.MongoClient(getenv("MONGO_URL"))
-db = myclient["mydatabase"]
+def connect():
+	myclient = motor.AsyncIOMotorClient(getenv("MONGO_URL"))
+	return myclient["mydatabase"]

@@ -1,7 +1,7 @@
 import os
 import time
 from flask import Flask, jsonify
-from strawberry.flask.views import GraphQLView
+from strawberry.flask.views import AsyncGraphQLView
 from server import schema
 
 app = Flask(__name__)
@@ -12,9 +12,10 @@ def status():
 
 app.add_url_rule(
 	"/graphql",
-	view_func=GraphQLView.as_view("graphql_view", schema=schema)
+	view_func=AsyncGraphQLView.as_view("graphql_view", schema=schema)
 )
 
 if __name__ == "__main__":
+	from waitress import serve
 	port = int(os.environ.get('PORT', 5000))
-	app.run(debug=True, host="0.0.0.0", port=port)
+	serve(app, host="0.0.0.0", port=port)
