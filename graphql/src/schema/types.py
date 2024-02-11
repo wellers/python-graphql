@@ -57,10 +57,10 @@ class ContactsQuery:
 
 		db = connect()
 
-		stuff = db.contacts.find(filter)		
-		results = await stuff.to_list(length=None)
+		docs = db.contacts.find(filter)		
+		docs = await docs.to_list(length=None)
 
-		docs = [Contact.to_schema(result) for result in results]
+		docs = [Contact.to_schema(result) for result in docs]
 
 		return ContactsFindResult(
 			success=True, 
