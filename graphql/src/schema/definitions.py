@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import strawberry
-from .db import connect
-from .scalars import PyObjectId
+from db import connect
+from scalars import PyObjectId
 
 @strawberry.type
 class Contact:
@@ -49,15 +49,20 @@ class ContactsInsertInput:
 @strawberry.type
 class ContactsQuery:
 	@strawberry.field(name = "contacts_find")
-	async def contacts_find(filter: ContactsFindFilter) -> ContactsFindResult:
+	async def contacts_find(self, filter: ContactsFindFilter) -> ContactsFindResult:
+		search = {}
 		if len(filter.search_term) > 0:
-			filter = { "$or": [{ "forename": { "$regex": filter.search_term, "$options": "i" } }, { "surname": { "$regex": filter.search_term, "$options": "i" } }] }
-		else:
-			filter = {}
+			search = { 
+				"$or": [{ 
+					"forename": { "$regex": filter.search_term, "$options": "i" } 
+				}, { 
+					"surname": { "$regex": filter.search_term, "$options": "i" } 
+				}] 
+			}
 
 		db = connect()
 
-		docs = db.contacts.find(filter)		
+		docs = db.contacts.find(search)		
 		docs = await docs.to_list(length=None)
 
 		docs = [Contact.to_schema(result) for result in docs]
@@ -71,7 +76,7 @@ class ContactsQuery:
 @strawberry.type
 class ContactsMutation:
 	@strawberry.field(name = "contacts_insert")
-	async def contacts_insert(input: ContactsInsertInput) -> ContactsInsertResult:
+	async def contacts_insert(self, input: ContactsInsertInput) -> ContactsInsertResult:
 		contacts = [contact.__dict__ for contact in input.contacts]
 		
 		db = connect()
@@ -87,10 +92,10 @@ class ContactsMutation:
 class Query:
 	@strawberry.field
 	def contacts(self) -> ContactsQuery:
-		return ContactsQuery
+		return ContactsQuery()
 
 @strawberry.type
 class Mutation:
 	@strawberry.field
 	def contacts(self) -> ContactsMutation:
-		return ContactsMutation
+		return ContactsMutation()
