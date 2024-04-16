@@ -20,12 +20,14 @@ class Contact:
 
 
 @strawberry.type
+@dataclass
 class ContactsFindResult:
 	success: bool
 	message: str
 	docs: list[Contact]
 
 @strawberry.type
+@dataclass
 class ContactsInsertResult:
 	success: bool
 	message: str
