@@ -7,7 +7,7 @@ class ContactsQuery:
 	@strawberry.field(name = "contacts_find")
 	async def contacts_find(self, filter: ContactsFindFilter) -> ContactsFindResult:	
 		search = {}
-		if len(filter.search_term) > 0:
+		if filter.search_term:
 			search = { 
 				"$or": [{ 
 					"forename": { "$regex": filter.search_term, "$options": "i" } 
