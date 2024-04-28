@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import strawberry
-from schema.scalars import PyObjectId
+from .scalars import PyObjectId
 
 @strawberry.type
 class Contact:

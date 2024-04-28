@@ -1,11 +1,11 @@
 import strawberry
-from schema.definitions import ContactsFindResult, Contact, ContactsFindFilter, ContactsInsertInput, ContactsInsertResult
-from schema.db import connect
+from .definitions import ContactsFindResult, Contact, ContactsFindFilter, ContactsInsertInput, ContactsInsertResult
+from .db import connect
 
 @strawberry.type
 class ContactsQuery:
 	@strawberry.field(name = "contacts_find")
-	async def contacts_find(self, filter: ContactsFindFilter) -> ContactsFindResult:
+	async def contacts_find(self, filter: ContactsFindFilter) -> ContactsFindResult:	
 		search = {}
 		if len(filter.search_term) > 0:
 			search = { 
